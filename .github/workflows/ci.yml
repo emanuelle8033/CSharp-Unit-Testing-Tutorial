@@ -1,0 +1,35 @@
+name: Continuous Integration (.NET 9)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar .NET 9 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restaurar Dependências
+      run: dotnet restore src/UnitTestingTutorial.slnx
+
+    - name: Compilar (Build)
+      run: dotnet build src/UnitTestingTutorial.slnx --no-restore --configuration Release
+
+    - name: Executar Testes com Cobertura
+      run: dotnet test src/UnitTestingTutorial.slnx --no-build --configuration Release --collect:"XPlat Code Coverage"
+
+    - name: Upload do Artefato de Cobertura
+      uses: actions/upload-artifact@v4
+      with:
+        name: cobertura-cobertura-xml
+        path: "**/coverage.cobertura.xml"
